@@ -19,7 +19,16 @@ namespace api.Mappers
                 CreatedOn = commentModel.CreatedOn,
                 StockId = commentModel.StockId
             };
-            
+        }
+
+        public static Comment ToCommentFromCreate(this CreateCommentDto commentDto, int stockId)
+        { //Map to a Comment
+            return new Comment //Map to a Comment
+            {
+                Title = commentDto.Title,
+                Content = commentDto.Content,
+                StockId = stockId
+            };
         }
     }
 }
