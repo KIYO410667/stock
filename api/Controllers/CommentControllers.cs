@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using api.Mappers;
 using api.Dtos.Comment;
 using Microsoft.AspNetCore.Http.HttpResults;
+using api.Helpers;
 
 namespace api.Controllers
 {
