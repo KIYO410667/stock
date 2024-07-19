@@ -19,6 +19,7 @@ namespace api.Controllers
         private readonly IStockRepository _stockRepo;
 
         private readonly IPortfolioRepository _portfolioRepo;
+
         //private readonly Portfolio
         public PortfolioController(UserManager<AppUser> userManager
         , IStockRepository stockRepo, IPortfolioRepository portfolioRepo)
@@ -44,7 +45,72 @@ namespace api.Controllers
             var userPortfolio = await _portfolioRepo.GetAllUserPortfolio(appUser);
 
             return Ok(userPortfolio);
+        }
 
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> AddPortfolio(string symbol)
+        {
+            var username = User.FindFirstValue(ClaimTypes.GivenName);
+            if (string.IsNullOrEmpty(username))
+            {
+                return Unauthorized("User not authenticated or userId claim not found.");
+            }
+
+            var appUser = await _userManager.FindByNameAsync(username);
+
+            var stock = await _stockRepo.GetBySymbolAsync(symbol);
+            if(stock == null) return BadRequest("Stock not found");
+
+            var userPortfolio = await _portfolioRepo.GetAllUserPortfolio(appUser);
+
+            if(userPortfolio.Any(e => e.Symbol.ToLower() == symbol.ToLower())) return BadRequest("Cannot add same stock to portfolio");
+
+
+            var portfolioModel = new Portfolio
+            {
+                StockId = stock.Id,
+                AppUserId = appUser.Id
+            };
+
+            var portfolio = await _portfolioRepo.CreateAsync(portfolioModel);
+
+            if(portfolio == null)
+            {
+                return StatusCode(500, "Could not create");
+            }
+            else
+            {
+                return Created();
+            }
+        }
+
+        [HttpDelete]
+        [Authorize]
+        public async Task<IActionResult> DeletePortfolio(string symbol)
+        {
+            var username = User.FindFirstValue(ClaimTypes.GivenName);
+            if (string.IsNullOrEmpty(username))
+            {
+                return Unauthorized("User not authenticated or userId claim not found.");
+            }
+
+            var appUser = await _userManager.FindByNameAsync(username);
+
+            var userPortfolio = await _portfolioRepo.GetAllUserPortfolio(appUser);
+
+            var filteredStock = userPortfolio.Where(s => s.Symbol.ToLower() == symbol.ToLower());
+
+            if(filteredStock.Count() == 1)
+            {
+                await _portfolioRepo.DeletePortfolio(appUser, symbol);
+            }
+            else
+            {
+                return BadRequest("Stock is not in your Portfolio");
+            }
+
+            return Ok();
 
         }
     }
