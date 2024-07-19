@@ -20,18 +20,19 @@ namespace api.Repository
             _context = context;
         }
 
-        public async  Task<List<Stock>> GetAllUserPortfolio(AppUser user)
+        public async  Task<List<PortfolioDto>> GetAllUserPortfolio(AppUser user)
         {
-            return await _context.Portfolios.Where(u => u.AppUserId == user.Id)
-            .Select(s => new Stock
+            return await _context.Portfolios.Where(p => p.AppUserId == user.Id)
+            .Include(p => p.Stock)
+            .Select(p => new PortfolioDto
             {
-                Id = s.StockId,
-                Symbol = s.Stock.Symbol,
-                CompanyName = s.Stock.CompanyName,
-                Purchase = s.Stock.Purchase,
-                LastDiv = s.Stock.LastDiv,
-                Industry = s.Stock.Industry,
-                MarketCap = s.Stock.MarketCap
+                Id = p.StockId,
+                Symbol = p.Stock.Symbol,
+                CompanyName = p.Stock.CompanyName,
+                Purchase = p.Stock.Purchase,
+                LastDiv = p.Stock.LastDiv,
+                Industry = p.Stock.Industry,
+                MarketCap = p.Stock.MarketCap
             }).ToListAsync();
         }
     }
