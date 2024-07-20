@@ -27,6 +27,7 @@ namespace api.Data
             builder.Entity<Portfolio>().HasKey(p => new {p.StockId, p.AppUserId});
             builder.Entity<Portfolio>().HasOne(p => p.AppUser).WithMany(x => x.Portfolios).HasForeignKey(a => a.AppUserId);
             builder.Entity<Portfolio>().HasOne(p => p.Stock).WithMany(x => x.Portfolios).HasForeignKey(a => a.StockId);
+            builder.Entity<Comment>().HasOne(a => a.AppUser).WithMany(c => c.Comments).HasForeignKey(a => a.AppUserId);
 
 
             builder.Entity<IdentityRole>().HasData(
