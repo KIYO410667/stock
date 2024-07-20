@@ -35,10 +35,10 @@ namespace api.Controllers
                 
             var stocks = await _stockRepo.GetAllAsync(query);
             
-            var stockDto = stocks.Select(s => s.ToStockDto());
+            var stockDto = stocks.Select(s => s.ToStockDto()).ToList();
 
             //Stocks would take in DBcontext and tolist is deferred execution
-            return Ok(stocks);
+            return Ok(stockDto);
         }
         
         [HttpGet("{id}")]
