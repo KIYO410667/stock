@@ -39,12 +39,13 @@ namespace api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        [Authorize]
+        public async Task<IActionResult> GetAll([FromQuery] CommentQueryObject queryObject)
         {
             if(!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var comment = await _commentRepo.GetAllAsync();
+            var comment = await _commentRepo.GetAllAsync(queryObject);
 
             var commentDto = comment.Select(s => s.ToCommentDto());
 
